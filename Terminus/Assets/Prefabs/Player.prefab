@@ -136,14 +136,15 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5d6b137d4c520f147bdeaa8076ba2fb6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerCombat
+  m_EditorClassIdentifier: Assembly-CSharp::Player.PlayerCombat
+  playerInput: {fileID: 3288750928448386989}
   attackPoint: {fileID: 7241493612774536452}
   attackRange: 0.5
   enemyLayers:
     serializedVersion: 2
     m_Bits: 256
   attackDamage: 20
-  attackRate: 2
+  attackRate: 0.5
 --- !u!1 &2992380880993403615
 GameObject:
   m_ObjectHideFlags: 0
