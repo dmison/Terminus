@@ -98,11 +98,11 @@ namespace Player
         }
 
         private void Moving()
-        {
-            // BUG: always moves at 100% speed, trying to include GetMoveSpeed reduced move to 0 unless at full move
+        {  
             Vector3 moveDir = GetMoveDir();
-            animator.SetFloat(Speed, Mathf.Abs(GetMoveSpeed()));
-            characterController.Move(moveDir.normalized * (speed * Time.deltaTime));
+            float moveSpeed = GetMoveSpeed();
+            animator.SetFloat(Speed, moveSpeed);
+            characterController.Move(moveDir.normalized * (speed * moveSpeed * Time.deltaTime));
             
             // == transitions
             if (!Grounded)

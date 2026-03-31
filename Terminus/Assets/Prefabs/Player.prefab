@@ -63,7 +63,7 @@ CharacterController:
   m_SlopeLimit: 45
   m_StepOffset: 0.7
   m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.01
+  m_MinMoveDistance: 0
   m_Center: {x: 0, y: 0.93, z: 0}
 --- !u!136 &11671136073814140
 CapsuleCollider:
