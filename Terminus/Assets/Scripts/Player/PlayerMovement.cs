@@ -1,4 +1,6 @@
+using System.Collections;
 using TMPro;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace Player
@@ -7,7 +9,8 @@ namespace Player
     {
         Idle,
         Moving,
-        Falling
+        Falling,
+        Dodge
     }
     
     public class PlayerMovement : MonoBehaviour
@@ -15,6 +18,7 @@ namespace Player
         private PlayerMovementStates _currentMovementState = PlayerMovementStates.Idle;
         private static readonly int Speed = Animator.StringToHash("Speed");
         private static readonly int IsFalling = Animator.StringToHash("isFalling");
+        private static readonly int IsDodging = Animator.StringToHash("isDodging");
 
         [SerializeField] private PlayerInput playerInput;
         [SerializeField] private CharacterController characterController;
@@ -32,10 +36,16 @@ namespace Player
         public bool Grounded { get; private set; } = true;
 
         [field: Header("Player Grounded")]
-
         [SerializeField] private LayerMask groundLayers;
         [SerializeField] private Transform groundCheck;
         [SerializeField] private float groundedRadius = 0.28f;
+
+        [field: Header("Dodge")]
+        [SerializeField] private bool canDash = true;
+        [SerializeField] private bool isDashing;
+        [SerializeField] private float dashDistance = 5f;
+        [SerializeField] private float dashingCooldown = 1f;
+        [SerializeField] Vector3 velocity;
 
         private const float Gravity = 9.81f;
 
@@ -62,6 +72,10 @@ namespace Player
                     Idle();
                     break;
 
+                case PlayerMovementStates.Dodge:
+                    Dodge();
+                    break;
+
                 default: Idle();
                     break;
             }
@@ -80,6 +94,11 @@ namespace Player
             if (Grounded && playerInput.MoveVector != Vector2.zero)
             {
                 _currentMovementState = PlayerMovementStates.Moving;
+            }
+
+            if (playerInput.Dodge && canDash)
+            {
+                _currentMovementState = PlayerMovementStates.Dodge;
             }
         }
 
@@ -116,6 +135,24 @@ namespace Player
             }
         }
 
+        private void Dodge()
+        {
+            Debug.Log("Balls");
+            Vector3 moveDir = GetMoveDir();
+            animator.SetBool(IsDodging, true);
+            //canDash = false;
+
+            characterController.Move(velocity * dashDistance * Time.deltaTime);
+            
+
+            if (canDash == true)
+            {
+                _currentMovementState = PlayerMovementStates.Idle;
+                animator.SetBool(IsDodging, false);
+            }
+
+        }
+
         /**
          returns 0 to 1 depending on movement input
          keyboard always returns 1 if movement key is pressed
@@ -147,5 +184,6 @@ namespace Player
             return moveDir;
 
         }
+
     }
 }

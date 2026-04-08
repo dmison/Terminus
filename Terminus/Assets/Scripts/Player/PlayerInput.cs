@@ -9,12 +9,14 @@ namespace Player
         private InputAction _moveAction;
         private InputAction _pauseAction;
         private InputAction _attackAction;
+        private InputAction _dodgeAction;
         
         private bool _paused;
         
         public Vector2 MoveVector { get; private set; }
         public bool Attacking { get; private set; }
-        
+        public bool Dodge { get; private set; }
+
         private void Awake()
         {
             Cursor.lockState = CursorLockMode.Locked;
@@ -27,6 +29,10 @@ namespace Player
             _attackAction = playerControls.FindActionMap("Player").FindAction("Attack");
             _attackAction.performed += _ => Attacking = true;
             _attackAction.canceled += _ => Attacking = false;
+
+            _dodgeAction = playerControls.FindActionMap("Player").FindAction("Dodge");
+            _dodgeAction.performed += _ => Dodge = true;
+            _dodgeAction.canceled += _ => Dodge = false;   
 
             _pauseAction = playerControls.FindActionMap("Player").FindAction("Pause");
             _pauseAction.performed += _ =>
