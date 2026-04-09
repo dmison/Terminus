@@ -2,6 +2,7 @@ using System.Collections;
 using TMPro;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Player
 {
@@ -10,6 +11,7 @@ namespace Player
         Idle,
         Moving,
         Falling,
+        Jump,
         Dodge
     }
     
@@ -40,12 +42,15 @@ namespace Player
         [SerializeField] private Transform groundCheck;
         [SerializeField] private float groundedRadius = 0.28f;
 
+
         [field: Header("Dodge")]
         [SerializeField] private bool canDash = true;
-        [SerializeField] private bool isDashing;
-        [SerializeField] private float dashDistance = 5f;
-        [SerializeField] private float dashingCooldown = 1f;
-        [SerializeField] Vector3 velocity;
+        [SerializeField] private bool isDashing = false;
+        [SerializeField] private float dashDistance = 10f;
+        [SerializeField] private float dodgeCooldown = 2f;
+        [SerializeField] private float dodgeTime = 2f;
+        
+  
 
         private const float Gravity = 9.81f;
 
@@ -76,9 +81,15 @@ namespace Player
                     Dodge();
                     break;
 
+                case PlayerMovementStates.Jump:
+                    Jump();
+                    break;
+
                 default: Idle();
                     break;
             }
+
+
         }
 
         private void Idle()
@@ -96,9 +107,24 @@ namespace Player
                 _currentMovementState = PlayerMovementStates.Moving;
             }
 
-            if (playerInput.Dodge && canDash)
+            if (playerInput.Dodge && canDash && !isDashing)
             {
                 _currentMovementState = PlayerMovementStates.Dodge;
+            }
+
+            if (playerInput.Jump && Grounded)
+            {
+                _currentMovementState= PlayerMovementStates.Jump;
+            }
+        }
+
+        private void Jump()
+        {
+
+
+            if (Grounded)
+            {
+                _currentMovementState = PlayerMovementStates.Idle;
             }
         }
 
@@ -137,20 +163,47 @@ namespace Player
 
         private void Dodge()
         {
-            Debug.Log("Balls");
-            Vector3 moveDir = GetMoveDir();
+            Debug.Log("Begin Dodge");
             animator.SetBool(IsDodging, true);
-            //canDash = false;
+            canDash = false;
+            isDashing = true;
 
-            characterController.Move(velocity * dashDistance * Time.deltaTime);
+            StartCoroutine(PerformDodge());
             
-
-            if (canDash == true)
+            
+            if (!isDashing)
             {
                 _currentMovementState = PlayerMovementStates.Idle;
                 animator.SetBool(IsDodging, false);
             }
 
+        }
+
+        private IEnumerator PerformDodge()
+        {
+            Vector3 moveDir = GetMoveDir();
+
+            float elapsedTime = 0;
+
+
+            while (elapsedTime < dodgeTime)
+            {
+                if (!Grounded)
+                {
+                    moveDir.y -= Gravity * Time.deltaTime;
+                }
+
+                characterController.Move(moveDir.normalized * dashDistance * Time.deltaTime);
+                elapsedTime += Time.deltaTime;
+                yield return null;
+                Debug.Log("Dodge Occuring");
+            }
+
+            isDashing = false;
+
+            yield return new WaitForSeconds(dodgeCooldown);
+            canDash = true;
+            Debug.Log("Dodge Over");
         }
 
         /**
@@ -184,6 +237,7 @@ namespace Player
             return moveDir;
 
         }
+
 
     }
 }
