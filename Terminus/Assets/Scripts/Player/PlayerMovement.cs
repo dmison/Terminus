@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEditor.Experimental.GraphView;
@@ -45,12 +46,10 @@ namespace Player
 
         [field: Header("Dodge")]
         [SerializeField] private bool canDash = true;
-        [SerializeField] private bool isDashing = false;
         [SerializeField] private float dashDistance = 10f;
-        [SerializeField] private float dodgeCooldown = 2f;
-        [SerializeField] private float dodgeTime = 2f;
-        
-  
+        [SerializeField] private float dashTimeRemaining;
+        [SerializeField] private float dashTime;
+        [SerializeField] private Vector3 dashDirection;
 
         private const float Gravity = 9.81f;
 
@@ -107,7 +106,7 @@ namespace Player
                 _currentMovementState = PlayerMovementStates.Moving;
             }
 
-            if (playerInput.Dodge && canDash && !isDashing)
+            if (playerInput.Dodge && canDash && Grounded)
             {
                 _currentMovementState = PlayerMovementStates.Dodge;
             }
@@ -159,51 +158,40 @@ namespace Player
             {
                 _currentMovementState = PlayerMovementStates.Idle;
             }
+
+            if (playerInput.Dodge && Grounded && canDash)
+            {
+                _currentMovementState |= PlayerMovementStates.Dodge;
+            }
         }
 
         private void Dodge()
         {
-            Debug.Log("Begin Dodge");
-            animator.SetBool(IsDodging, true);
-            canDash = false;
-            isDashing = true;
-
-            StartCoroutine(PerformDodge());
-            
-            
-            if (!isDashing)
+            dashTimeRemaining -= Time.deltaTime;
+            if (dashTimeRemaining <= 0f)
             {
-                _currentMovementState = PlayerMovementStates.Idle;
+                CanDash();
                 animator.SetBool(IsDodging, false);
+                _currentMovementState = PlayerMovementStates.Idle;
+                dashTimeRemaining = dashTime;  //reset the time remaining for next dash
+                dashDirection = Vector3.zero;
+                return;
             }
 
+            if (dashDirection == Vector3.zero)
+            {
+                dashDirection = GetMoveDir();
+            }
+
+            animator.SetBool(IsDodging, true);
+            //canDash = false;
+
+            characterController.Move(dashDirection.normalized * dashDistance * Time.deltaTime);
         }
 
-        private IEnumerator PerformDodge()
+        private void CanDash()
         {
-            Vector3 moveDir = GetMoveDir();
-
-            float elapsedTime = 0;
-
-
-            while (elapsedTime < dodgeTime)
-            {
-                if (!Grounded)
-                {
-                    moveDir.y -= Gravity * Time.deltaTime;
-                }
-
-                characterController.Move(moveDir.normalized * dashDistance * Time.deltaTime);
-                elapsedTime += Time.deltaTime;
-                yield return null;
-                Debug.Log("Dodge Occuring");
-            }
-
-            isDashing = false;
-
-            yield return new WaitForSeconds(dodgeCooldown);
             canDash = true;
-            Debug.Log("Dodge Over");
         }
 
         /**

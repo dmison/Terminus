@@ -1549,6 +1549,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7752497277317460184, guid: 810c6eed664e65c85840300ec59be140, type: 3}
+      propertyPath: dashTime
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 7752497277317460184, guid: 810c6eed664e65c85840300ec59be140, type: 3}
       propertyPath: dodgeTime
       value: 2
       objectReference: {fileID: 0}
@@ -1558,11 +1562,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7752497277317460184, guid: 810c6eed664e65c85840300ec59be140, type: 3}
       propertyPath: dashDistance
-      value: 10
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 7752497277317460184, guid: 810c6eed664e65c85840300ec59be140, type: 3}
       propertyPath: GroundedRadius
       value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7752497277317460184, guid: 810c6eed664e65c85840300ec59be140, type: 3}
+      propertyPath: dashTimeRemaining
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7752497277317460184, guid: 810c6eed664e65c85840300ec59be140, type: 3}
       propertyPath: gravityMultiplier
