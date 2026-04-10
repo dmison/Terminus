@@ -1,5 +1,9 @@
+using System;
+using System.Collections;
 using TMPro;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Player
 {
@@ -7,7 +11,9 @@ namespace Player
     {
         Idle,
         Moving,
-        Falling
+        Falling,
+        Jump,
+        Dodge
     }
     
     public class PlayerMovement : MonoBehaviour
@@ -15,6 +21,7 @@ namespace Player
         private PlayerMovementStates _currentMovementState = PlayerMovementStates.Idle;
         private static readonly int Speed = Animator.StringToHash("Speed");
         private static readonly int IsFalling = Animator.StringToHash("isFalling");
+        private static readonly int IsDodging = Animator.StringToHash("isDodging");
 
         [SerializeField] private PlayerInput playerInput;
         [SerializeField] private CharacterController characterController;
@@ -32,10 +39,17 @@ namespace Player
         public bool Grounded { get; private set; } = true;
 
         [field: Header("Player Grounded")]
-
         [SerializeField] private LayerMask groundLayers;
         [SerializeField] private Transform groundCheck;
         [SerializeField] private float groundedRadius = 0.28f;
+
+
+        [field: Header("Dodge")]
+        [SerializeField] private bool canDash = true;
+        [SerializeField] private float dashDistance = 10f;
+        [SerializeField] private float dashTimeRemaining;
+        [SerializeField] private float dashTime;
+        [SerializeField] private Vector3 dashDirection;
 
         private const float Gravity = 9.81f;
 
@@ -62,9 +76,19 @@ namespace Player
                     Idle();
                     break;
 
+                case PlayerMovementStates.Dodge:
+                    Dodge();
+                    break;
+
+                case PlayerMovementStates.Jump:
+                    Jump();
+                    break;
+
                 default: Idle();
                     break;
             }
+
+
         }
 
         private void Idle()
@@ -80,6 +104,26 @@ namespace Player
             if (Grounded && playerInput.MoveVector != Vector2.zero)
             {
                 _currentMovementState = PlayerMovementStates.Moving;
+            }
+
+            if (playerInput.Dodge && canDash && Grounded)
+            {
+                _currentMovementState = PlayerMovementStates.Dodge;
+            }
+
+            if (playerInput.Jump && Grounded)
+            {
+                _currentMovementState= PlayerMovementStates.Jump;
+            }
+        }
+
+        private void Jump()
+        {
+
+
+            if (Grounded)
+            {
+                _currentMovementState = PlayerMovementStates.Idle;
             }
         }
 
@@ -114,6 +158,40 @@ namespace Player
             {
                 _currentMovementState = PlayerMovementStates.Idle;
             }
+
+            if (playerInput.Dodge && Grounded && canDash)
+            {
+                _currentMovementState |= PlayerMovementStates.Dodge;
+            }
+        }
+
+        private void Dodge()
+        {
+            dashTimeRemaining -= Time.deltaTime;
+            if (dashTimeRemaining <= 0f)
+            {
+                CanDash();
+                animator.SetBool(IsDodging, false);
+                _currentMovementState = PlayerMovementStates.Idle;
+                dashTimeRemaining = dashTime;  //reset the time remaining for next dash
+                dashDirection = Vector3.zero;
+                return;
+            }
+
+            if (dashDirection == Vector3.zero)
+            {
+                dashDirection = GetMoveDir();
+            }
+
+            animator.SetBool(IsDodging, true);
+            //canDash = false;
+
+            characterController.Move(dashDirection.normalized * dashDistance * Time.deltaTime);
+        }
+
+        private void CanDash()
+        {
+            canDash = true;
         }
 
         /**
@@ -147,5 +225,7 @@ namespace Player
             return moveDir;
 
         }
+
+
     }
 }
