@@ -75,7 +75,7 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 192
+    m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -125,6 +125,11 @@ MonoBehaviour:
     m_Bits: 192
   groundCheck: {fileID: 3124632486197979264}
   groundedRadius: 0.6
+  canDash: 1
+  dashDistance: 20
+  dashTimeRemaining: 0
+  dashTime: 0.25
+  dashDirection: {x: 0, y: 0, z: 0}
 --- !u!114 &7612430328064001902
 MonoBehaviour:
   m_ObjectHideFlags: 0

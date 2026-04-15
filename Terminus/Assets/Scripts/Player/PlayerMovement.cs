@@ -1,12 +1,8 @@
-using System;
-using System.Collections;
-using TMPro;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace Player
 {
+    
     public enum PlayerMovementStates
     {
         Idle,
@@ -186,7 +182,7 @@ namespace Player
             animator.SetBool(IsDodging, true);
             //canDash = false;
 
-            characterController.Move(dashDirection.normalized * dashDistance * Time.deltaTime);
+            characterController.Move(dashDirection.normalized * (dashDistance * Time.deltaTime));
         }
 
         private void CanDash()
