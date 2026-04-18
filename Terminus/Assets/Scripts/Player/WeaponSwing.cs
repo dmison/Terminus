@@ -6,21 +6,24 @@ using UnityEngine.InputSystem;
 public class WeaponSwing : MonoBehaviour
 {
     InputAction attackAction;
-    public GameObject Weapon;
+    [SerializeField] private GameObject Weapon;
 
 
-    
 
 
     void Start()
     {
+       
+
         attackAction = InputSystem.actions.FindAction("Attack");
         attackAction.performed += _ => DoAttack();
     }
 
     void DoAttack()
     {
-        StartCoroutine(WeaponSwingAnimation());
+        
+            StartCoroutine(WeaponSwingAnimation());
+        
     }
     IEnumerator WeaponSwingAnimation()
     {
