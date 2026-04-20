@@ -8,7 +8,6 @@ namespace Player
         Idle,
         Moving,
         Falling,
-        Jump,
         Dodge
     }
     
@@ -41,22 +40,34 @@ namespace Player
 
 
         [field: Header("Dodge")]
-        [SerializeField] private bool canDash = true;
-        [SerializeField] private float dashDistance = 10f;
-        [SerializeField] private float dashTimeRemaining;
-        [SerializeField] private float dashTime;
-        [SerializeField] private Vector3 dashDirection;
+        [SerializeField] private bool canDodge = true;
+        [SerializeField] private float dodgeDistance = 10f;
+        [SerializeField] private float dodgeTimeRemaining;
+        [SerializeField] private float dodgeTime;
+        [SerializeField] private Vector3 dodgeDirection;
+        [SerializeField] private float dodgeCooldown;
+        [SerializeField] private float dodgeReadyTimer = 0.01f; // Keep at 0, makes a timestamp for dodge cooldown.
 
         private const float Gravity = 9.81f;
 
         private void GroundedCheck()
         {
-    
             Grounded = Physics.CheckSphere(groundCheck.position, groundedRadius, groundLayers, QueryTriggerInteraction.Ignore);
+        }
+        private void DodgeCheck()
+        {
+            canDodge = dodgeReadyTimer <= Time.time; // dodgeReadyTimer will be Time.time + [dodgeCooldown] when dodge ends, compare until [dodgeCooldown] time has passed.
+        }
+
+        private void Awake()
+        {
+            dodgeTimeRemaining = dodgeTime;
         }
 
         private void Update()
         {
+            Debug.Log(canDodge);
+            DodgeCheck();
             GroundedCheck();
             switch (_currentMovementState)
             {
@@ -76,15 +87,9 @@ namespace Player
                     Dodge();
                     break;
 
-                case PlayerMovementStates.Jump:
-                    Jump();
-                    break;
-
                 default: Idle();
                     break;
             }
-
-
         }
 
         private void Idle()
@@ -102,24 +107,11 @@ namespace Player
                 _currentMovementState = PlayerMovementStates.Moving;
             }
 
-            if (playerInput.Dodge && canDash && Grounded)
+            if (playerInput.Dodge && canDodge && Grounded)
             {
                 _currentMovementState = PlayerMovementStates.Dodge;
-            }
 
-            if (playerInput.Jump && Grounded)
-            {
-                _currentMovementState= PlayerMovementStates.Jump;
-            }
-        }
-
-        private void Jump()
-        {
-
-
-            if (Grounded)
-            {
-                _currentMovementState = PlayerMovementStates.Idle;
+                animator.SetTrigger("Dodge");
             }
         }
 
@@ -155,39 +147,34 @@ namespace Player
                 _currentMovementState = PlayerMovementStates.Idle;
             }
 
-            if (playerInput.Dodge && Grounded && canDash)
+            if (playerInput.Dodge && Grounded && canDodge)
             {
                 _currentMovementState |= PlayerMovementStates.Dodge;
+
+                animator.SetTrigger("Dodge");
             }
         }
 
         private void Dodge()
         {
-            dashTimeRemaining -= Time.deltaTime;
-            if (dashTimeRemaining <= 0f)
+            dodgeTimeRemaining -= Time.deltaTime;
+
+            if (dodgeTimeRemaining <= 0f)
             {
-                CanDash();
-                animator.SetBool(IsDodging, false);
+                dodgeReadyTimer = Time.time + dodgeCooldown; // Adds cooldown to Time.time. Sets a 'bookmark' that is [dodgeCooldown] amount of time in the future.
                 _currentMovementState = PlayerMovementStates.Idle;
-                dashTimeRemaining = dashTime;  //reset the time remaining for next dash
-                dashDirection = Vector3.zero;
+                dodgeTimeRemaining = dodgeTime;  //reset the time remaining for next dodge
+                dodgeDirection = Vector3.zero;
+                canDodge = false;
                 return;
             }
 
-            if (dashDirection == Vector3.zero)
+            if (dodgeDirection == Vector3.zero)
             {
-                dashDirection = GetMoveDir();
+                dodgeDirection = GetMoveDir();
             }
 
-            animator.SetBool(IsDodging, true);
-            //canDash = false;
-
-            characterController.Move(dashDirection.normalized * (dashDistance * Time.deltaTime));
-        }
-
-        private void CanDash()
-        {
-            canDash = true;
+            characterController.Move(dodgeDirection.normalized * (dodgeDistance * Time.deltaTime));
         }
 
         /**
