@@ -66,7 +66,6 @@ namespace Player
 
         private void Update()
         {
-            Debug.Log(canDodge);
             DodgeCheck();
             GroundedCheck();
             switch (_currentMovementState)
