@@ -35,8 +35,14 @@ namespace Player
 
         [field: Header("Player Grounded")]
         [SerializeField] private LayerMask groundLayers;
-        [SerializeField] private Transform groundCheck;
         [SerializeField] private float groundedRadius = 0.28f;
+        [SerializeField] private float groundStickForce = -2f;
+        [SerializeField] private float coyoteTimer = 0.1f;
+        [SerializeField] private float groundedOffset = 1f;
+        [SerializeField] private float maxCastDistance = 0.3f;
+        private float lastGroundedTime;
+        private float verticalVelocity;
+        private Vector3 groundNormal = Vector3.up;
 
 
         [field: Header("Dodge")]
@@ -46,17 +52,34 @@ namespace Player
         [SerializeField] private float dodgeTime;
         [SerializeField] private Vector3 dodgeDirection;
         [SerializeField] private float dodgeCooldown;
-        [SerializeField] private float dodgeReadyTimer = 0.01f; // Keep at 0, makes a timestamp for dodge cooldown.
+        [SerializeField] private float dodgeGravityModifier;
+        private float dodgeReadyTimer = 0.01f; // Keep at 0, makes a timestamp for dodge cooldown.
 
         private const float Gravity = 9.81f;
 
         private void GroundedCheck()
         {
-            Grounded = Physics.CheckSphere(groundCheck.position, groundedRadius, groundLayers, QueryTriggerInteraction.Ignore);
+            RaycastHit hit;
+
+            Vector3 sphereCastOrigin = transform.position + Vector3.up * groundedOffset;
+
+            Grounded = Physics.SphereCast(sphereCastOrigin, groundedRadius, Vector3.down, out hit, maxCastDistance, groundLayers, QueryTriggerInteraction.Ignore);
+
+            groundNormal = Grounded ? hit.normal : Vector3.up; // Depending on Grounded, uses the angle where the spherecast 'reflects' off the ground, or uses straight up as reference for  angular movement.
+
+            Vector3 endPoint = sphereCastOrigin + Vector3.down * maxCastDistance;
+
+            // Coyote timer my beloved.
+            if (Grounded)
+            {
+                lastGroundedTime = Time.time;
+            }
+
+            Grounded = Time.time - lastGroundedTime <= coyoteTimer;
         }
         private void DodgeCheck()
         {
-            canDodge = dodgeReadyTimer <= Time.time; // dodgeReadyTimer will be Time.time + [dodgeCooldown] when dodge ends, compare until [dodgeCooldown] time has passed.
+            canDodge = dodgeReadyTimer <= Time.time; // dodgeReadyTimer will be Time.time + dodgeCooldown when dodge ends, compare until dodgeCooldown time has passed.
         }
 
         private void Awake()
@@ -117,7 +140,7 @@ namespace Player
         private void Falling()
         {
             animator.SetBool(IsFalling, true);
-            characterController.Move(GetMoveDir().normalized * (speed * Time.deltaTime));
+            characterController.Move(GetMoveDir() * Time.deltaTime);
             
             // == transitions
             if (Grounded)
@@ -133,7 +156,7 @@ namespace Player
             Vector3 moveDir = GetMoveDir();
             float moveSpeed = GetMoveSpeed();
             animator.SetFloat(Speed, moveSpeed);
-            characterController.Move(moveDir.normalized * (speed * moveSpeed * Time.deltaTime));
+            characterController.Move(moveDir * (speed * moveSpeed * Time.deltaTime));
             
             // == transitions
             if (!Grounded)
@@ -148,7 +171,7 @@ namespace Player
 
             if (playerInput.Dodge && Grounded && canDodge)
             {
-                _currentMovementState |= PlayerMovementStates.Dodge;
+                _currentMovementState = PlayerMovementStates.Dodge;
 
                 animator.SetTrigger("Dodge");
             }
@@ -192,20 +215,42 @@ namespace Player
             float targetAngle = Mathf.Atan2(playerInput.MoveVector.x, playerInput.MoveVector.y) * Mathf.Rad2Deg + playerCameraTransform.eulerAngles.y;
             float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothing);
             transform.rotation = Quaternion.Euler(0f, angle, 0f);
-            
+
             Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
-            
-            if (!Grounded)
+            moveDir = Vector3.ProjectOnPlane(moveDir, groundNormal); // Aligns movement to the normal of the slope, normal comes from SphereCast in GroundedCheck().
+
+            if (playerInput.MoveVector == Vector2.zero) // Stops player from constantly shimmying from groundStickForce when no inputs are detected.
             {
-                moveDir.y -= Gravity;
+                if (Grounded)
+                {
+                    return Vector3.up * verticalVelocity;
+                }
+                
+                else
+                {
+                    verticalVelocity -= Gravity * Time.deltaTime;
+                }
+
+                return new Vector3(0f, verticalVelocity, 0f);
+            }
+
+            if (Grounded)
+            {
+                verticalVelocity = groundStickForce; // Holds player down enough to prevent jitter, hopefully!
             }
             else
             {
-                moveDir.y = 0f;
+                verticalVelocity -= Gravity * Time.deltaTime;
+            }
+            
+            if (dodgeTimeRemaining != dodgeTime) // Allows for some primitive platforming by making player floatier during dodge, can delete later if we don't like how this feels.
+            {
+                verticalVelocity *= dodgeGravityModifier;
             }
 
-            return moveDir;
+            moveDir.y = verticalVelocity; // I don't know why I couldn't just set moveDir.y directly, and I don't want to know, verticalVelocity works.
 
+            return moveDir;
         }
 
 

@@ -10,7 +10,6 @@ namespace Player
         private InputAction _moveAction;
         private InputAction _attackAction;
         private InputAction _dodgeAction;
-        private InputAction _jumpAction;
         
         public Vector2 MoveVector { get; private set; }
         public bool Attacking { get; private set; }
@@ -33,11 +32,6 @@ namespace Player
             _dodgeAction = playerControls.FindActionMap("Player").FindAction("Dodge");
             _dodgeAction.started += _ => Dodge = true;
             _dodgeAction.canceled += _ => Dodge = false;
-
-            _jumpAction = playerControls.FindActionMap("Player").FindAction("Jump");
-            _jumpAction.started += _ => Jump = true;
-            _jumpAction.performed += _ => Jump = false;
-            
         }
     }
 }

@@ -28,8 +28,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1326747919864980137}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.090553164, y: 0.2521817, z: -0.023709744, w: 0.963142}
-  m_LocalPosition: {x: -1.9069073, y: 5.898198, z: -8.951822}
+  m_LocalRotation: {x: -0.0511573, y: 0.16805136, z: 0.008733193, w: 0.98441124}
+  m_LocalPosition: {x: -1.3051488, y: 1.5900075, z: -3.7112484}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -226,7 +226,6 @@ Transform:
   - {fileID: 3065246889700166430}
   - {fileID: 8820598546359447089}
   - {fileID: 905015608667149757}
-  - {fileID: 3124632486197979264}
   - {fileID: 7241493612774536452}
   - {fileID: 6833624587209814654}
   - {fileID: 4232429154186107803}
@@ -251,13 +250,13 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 1.7
-  m_Radius: 0.28
+  m_Height: 1.85
+  m_Radius: 0.33
   m_SlopeLimit: 45
   m_StepOffset: 0.7
-  m_SkinWidth: 0.08
+  m_SkinWidth: 0.02
   m_MinMoveDistance: 0
-  m_Center: {x: 0, y: 0.93, z: 0}
+  m_Center: {x: 0, y: 0.9, z: 0}
 --- !u!136 &11671136073814140
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -278,7 +277,7 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.6
-  m_Height: 1.8
+  m_Height: 1.85
   m_Direction: 1
   m_Center: {x: 0, y: 0.9, z: 0}
 --- !u!114 &3288750928448386989
@@ -315,16 +314,19 @@ MonoBehaviour:
   speed: 6
   groundLayers:
     serializedVersion: 2
-    m_Bits: 192
-  groundCheck: {fileID: 3124632486197979264}
-  groundedRadius: 0.6
+    m_Bits: 64
+  groundedRadius: 0.35
+  groundStickForce: -2
+  coyoteTimer: 0.1
+  groundedOffset: 0.5
+  maxCastDistance: 0.2
   canDodge: 1
   dodgeDistance: 15
   dodgeTimeRemaining: 0
   dodgeTime: 0.3
   dodgeDirection: {x: 0, y: 0, z: 0}
-  dodgeCooldown: 1.2
-  dodgeReadyTimer: 0
+  dodgeCooldown: 0.8
+  dodgeGravityModifier: 0.2
 --- !u!114 &4460336656316309184
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -443,7 +445,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8375993174562836139}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.051157314, y: 0.16805132, z: 0.008733192, w: 0.98441124}
+  m_LocalRotation: {x: -0.051157296, y: 0.16805135, z: 0.0087331915, w: 0.98441124}
   m_LocalPosition: {x: -1.3051487, y: 1.5900075, z: -3.7112486}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -676,37 +678,6 @@ MonoBehaviour:
         DecelTime: 0
   PlayerIndex: -1
   AutoEnableInputs: 1
---- !u!1 &8987670940233207619
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3124632486197979264}
-  m_Layer: 0
-  m_Name: GroundCheck
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &3124632486197979264
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8987670940233207619}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.55, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1790924070054594209}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &794317555936752214
 PrefabInstance:
   m_ObjectHideFlags: 0
