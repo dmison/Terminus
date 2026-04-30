@@ -53,6 +53,7 @@ namespace Player
         [SerializeField] private Vector3 dodgeDirection;
         [SerializeField] private float dodgeCooldown;
         [SerializeField] private float dodgeGravityModifier;
+        [SerializeField] public bool isImmune;
         private float dodgeReadyTimer = 0.01f; // Keep at 0, makes a timestamp for dodge cooldown.
 
         private const float Gravity = 9.81f;
@@ -180,6 +181,7 @@ namespace Player
         private void Dodge()
         {
             dodgeTimeRemaining -= Time.deltaTime;
+            isImmune = true;
 
             if (dodgeTimeRemaining <= 0f)
             {
@@ -188,6 +190,7 @@ namespace Player
                 dodgeTimeRemaining = dodgeTime;  //reset the time remaining for next dodge
                 dodgeDirection = Vector3.zero;
                 canDodge = false;
+                isImmune = false;
                 return;
             }
 
@@ -195,6 +198,7 @@ namespace Player
             {
                 dodgeDirection = GetMoveDir();
             }
+
 
             characterController.Move(dodgeDirection.normalized * (dodgeDistance * Time.deltaTime));
         }

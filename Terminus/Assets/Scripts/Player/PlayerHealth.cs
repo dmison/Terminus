@@ -8,20 +8,32 @@ namespace Player
         Hit,
         HeadHurts
     }
-    
+
     public class PlayerHealth : MonoBehaviour
     {
         private static readonly int IsDead = Animator.StringToHash("isDead");
         private static readonly int GotHitTrigger = Animator.StringToHash("gotHit");
-        
+
+        private PlayerMovement playerMovement;
+
         [SerializeField] private Animator animator;
 
         [SerializeField] private int maxHealth = 25;
         private int _currentHealth;
 
+        private void Awake()
+        {
+            playerMovement = GetComponent<PlayerMovement>();
+        }
+
         private void Start()
         {
             CurrentHealth = maxHealth;
+        }
+
+        private void Update()
+        {
+            IFrames();
         }
 
         public int MaxHealth
@@ -53,24 +65,33 @@ namespace Player
             }
         }
 
-        public void TakeDamage(int amount, PainTypes painType=PainTypes.Hit)
+        public void TakeDamage(int amount, PainTypes painType = PainTypes.Hit)
         {
-            
             CurrentHealth -= amount;
 
             if (_currentHealth <= 0) return;
-            
+
             switch (painType)
             {
                 case PainTypes.Hit:
-                {
-                    animator.SetTrigger(GotHitTrigger);
-                    break;
-                }
+                    {
+                        animator.SetTrigger(GotHitTrigger);
+                        break;
+                    }
             }
-            
 
         }
+
+        public void IFrames()
+        {
+            if (playerMovement.isImmune == true)
+            {
+               Debug.Log("Im Immune");
+               CurrentHealth -= 0;
+               return;
+            }
+        }
+        
 
         public void Heal(int amount)
         {
