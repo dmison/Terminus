@@ -21,6 +21,9 @@ namespace Player
         [SerializeField] private int maxHealth = 25;
         private int _currentHealth;
 
+        private bool IsImmune()
+        { return playerMovement.isImmune; }
+
         private void Awake()
         {
             playerMovement = GetComponent<PlayerMovement>();
@@ -67,35 +70,24 @@ namespace Player
 
         public void TakeDamage(int amount, PainTypes painType = PainTypes.Hit)
         {
-            ImmuneCheck(amount, painType);
+            // bail if immune
+            if (IsImmune()) return;
 
+            // apply damage
+            CurrentHealth -= amount;
+
+            // bail if now dead
             if (_currentHealth <= 0) return;
 
-        }
-
-        public void ImmuneCheck(int amount, PainTypes painType = PainTypes.Hit)
-        {
-            if (playerMovement.isImmune == true)
+            // otherwise play appropriate animation
+            switch (painType)
             {
-                Debug.Log("Im Immune");
-                CurrentHealth -= 0;
-                return;
+                case PainTypes.Hit:
+                    {
+                        animator.SetTrigger(GotHitTrigger);
+                        break;
+                    }
             }
-            else
-            {
-                CurrentHealth -= amount;
-
-
-                switch (painType)
-                {
-                    case PainTypes.Hit:
-                        {
-                            animator.SetTrigger(GotHitTrigger);
-                            break;
-                        }
-                }
-            }
-
         }
 
 
