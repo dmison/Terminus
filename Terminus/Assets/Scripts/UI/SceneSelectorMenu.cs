@@ -86,6 +86,7 @@ namespace UI
             
             if (_paused)
             {
+                _menuUIRoot.SetEnabled(true);
                 SwitchToUIActions();
                 _menuUIRoot.RemoveFromClassList("hideme");
                 _menuUIRoot.AddToClassList("showme");
@@ -96,6 +97,7 @@ namespace UI
                 SwitchToPlayerActions();
                 _menuUIRoot.AddToClassList("hideme");
                 _menuUIRoot.RemoveFromClassList("showme");
+                _menuUIRoot.SetEnabled(false);
             }
         }
         
