@@ -97,7 +97,7 @@ namespace Player
             }
 
         }
-        
+
 
         public void Heal(int amount)
         {
@@ -105,3 +105,4 @@ namespace Player
         }
     }
 }
+
