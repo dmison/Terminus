@@ -33,7 +33,7 @@ namespace Player
 
         private void Update()
         {
-            IFrames();
+
         }
 
         public int MaxHealth
@@ -67,31 +67,37 @@ namespace Player
 
         public void TakeDamage(int amount, PainTypes painType = PainTypes.Hit)
         {
-            CurrentHealth -= amount;
+            ImmuneCheck(amount, painType);
 
             if (_currentHealth <= 0) return;
 
-            switch (painType)
-            {
-                case PainTypes.Hit:
-                    {
-                        animator.SetTrigger(GotHitTrigger);
-                        break;
-                    }
-            }
-
         }
 
-        public void IFrames()
+        public void ImmuneCheck(int amount, PainTypes painType = PainTypes.Hit)
         {
             if (playerMovement.isImmune == true)
             {
-               Debug.Log("Im Immune");
-               CurrentHealth -= 0;
-               return;
+                Debug.Log("Im Immune");
+                CurrentHealth -= 0;
+                return;
             }
+            else
+            {
+                CurrentHealth -= amount;
+
+
+                switch (painType)
+                {
+                    case PainTypes.Hit:
+                        {
+                            animator.SetTrigger(GotHitTrigger);
+                            break;
+                        }
+                }
+            }
+
         }
-        
+
 
         public void Heal(int amount)
         {
@@ -99,3 +105,4 @@ namespace Player
         }
     }
 }
+
