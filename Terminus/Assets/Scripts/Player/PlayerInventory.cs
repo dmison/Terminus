@@ -7,8 +7,16 @@ namespace Player
 {
     public class PlayerInventory : MonoBehaviour
     {
+        [SerializeField] private Animator animator;
+        
         [SerializeField] private List<WeaponBase> weapons;
-        private int _currentWeapon; 
+        [SerializeField] private GameObject rightHand;
+        [SerializeField] private GameObject leftHand;
+        
+        private int _currentWeapon;
+        private WeaponBase _activeWeaponInstance;
+        private bool _activelySwapping;
+        
         private InputAction _nextWeaponAction;
         private InputAction _prevWeaponAction;
 
@@ -22,22 +30,42 @@ namespace Player
         }
 
         public WeaponBase CurrentWeapon => weapons[_currentWeapon];
+
+        private void Start()
+        {
+            DoAnimation();
+        }
         
         private void NextWeapon()
         {
+            if (_activelySwapping) return;
+            _activelySwapping = true;
             _currentWeapon = (_currentWeapon == (weapons.Count-1)) ? 0 : _currentWeapon+1;
-            EnableCurrentWeapon();
+            DoAnimation();
         }
 
         private void PrevWeapon()
         {
+            if (_activelySwapping) return;
+            _activelySwapping = true;
             _currentWeapon = _currentWeapon == 0 ? weapons.Count-1 : _currentWeapon-1;
-            EnableCurrentWeapon();
+            DoAnimation();
         }
 
-        private void EnableCurrentWeapon()
+        private void DoAnimation()
         {
-            Debug.Log(CurrentWeapon.WeaponName + " : " + CurrentWeapon.WeaponType);
+            if (animator != null)
+            {
+                animator.SetTrigger("SwapWeapon");
+            }
+        }
+        
+        public void EnableCurrentWeapon()
+        {
+            _activelySwapping = false;
+            if(_activeWeaponInstance?.gameObject != null) Destroy(_activeWeaponInstance.gameObject);
+            _activeWeaponInstance = Instantiate(CurrentWeapon, rightHand.transform);
+            _activeWeaponInstance.PositionInHands(rightHand, leftHand);
         }
         
     }
