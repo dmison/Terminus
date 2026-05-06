@@ -66,6 +66,24 @@ namespace Player
             if(_activeWeaponInstance?.gameObject != null) Destroy(_activeWeaponInstance.gameObject);
             _activeWeaponInstance = Instantiate(CurrentWeapon, rightHand.transform);
             _activeWeaponInstance.PositionInHands(rightHand, leftHand);
+            
+            // set value in animator used to determine correct idle animation
+            // base on CurrentWeapon.WeaponType
+            if (animator != null)
+            {
+                switch (CurrentWeapon.WeaponType)
+                {
+                    case WeaponTypeEnum.TwoHanded:
+                        animator.SetFloat("WeaponType", 1.0f);
+                        break;
+                    case WeaponTypeEnum.OneHanded:
+                    case WeaponTypeEnum.Unarmed:
+                    default:
+                        animator.SetFloat("WeaponType", 0.0f);
+                        break;
+                }
+            }
+            
         }
         
     }
